@@ -1,0 +1,5 @@
+**/.vagrant
+.vagrant
+node-token
+bonus/*.password
+__pycache__/

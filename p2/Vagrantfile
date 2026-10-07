@@ -1,0 +1,30 @@
+LOGIN = "ysabr"
+SERVER_NAME = "#{LOGIN}S"
+SERVER_IP = "192.168.56.110"
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "bento/debian-13"
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.memory = 1024
+    vb.cpus = 1
+  end
+
+  config.vm.define SERVER_NAME do |server|
+    server.vm.hostname = SERVER_NAME
+    server.vm.network "private_network", ip: SERVER_IP
+
+    server.vm.provider "virtualbox" do |vb|
+      vb.name = SERVER_NAME
+    end
+
+    server.vm.provision "shell",
+      path: "scripts/Server.sh",
+      env: {
+        "SERVER_IP" => SERVER_IP,
+        "NODE_IP" => SERVER_IP
+      }
+    server.vm.provision "shell", inline: "kubectl apply -f /vagrant/confs"
+    server.vm.provision "shell", path: "scripts/healthcheck.sh"
+  end
+end
