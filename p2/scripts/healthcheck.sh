@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+SERVER_IP="${SERVER_IP:-192.168.56.110}"
+
 check_app() {
 	local host="$1"
 	local expected="$2"
@@ -10,12 +12,12 @@ check_app() {
 
 	for attempt in $(seq 1 90); do
 		if [ -n "$host" ]; then
-			body=$(curl -fsS -H "Host: $host" http://127.0.0.1 || true)
+			body=$(curl --noproxy '*' --connect-timeout 3 --max-time 5 -fsS -H "Host: $host" "http://$SERVER_IP" || true)
 		else
-			body=$(curl -fsS http://127.0.0.1 || true)
+			body=$(curl --noproxy '*' --connect-timeout 3 --max-time 5 -fsS "http://$SERVER_IP" || true)
 		fi
 
-		if echo "$body" | grep -qi "$expected"; then
+		if echo "$body" | grep -qiF "$expected"; then
 			echo "$label is reachable"
 			return 0
 		fi
@@ -28,12 +30,13 @@ check_app() {
 	return 1
 }
 
-kubectl rollout status deployment/app1 --timeout=180s
-kubectl rollout status deployment/app2 --timeout=180s
-kubectl rollout status deployment/app3 --timeout=180s
+kubectl rollout status deployment/app1 --timeout=300s
+kubectl rollout status deployment/app2 --timeout=300s
+kubectl rollout status deployment/app3 --timeout=300s
 
 check_app "app1.com" "hello from app1" "app1.com"
 check_app "app2.com" "hello from app2" "app2.com"
 check_app "" "hello from app3" "default app3"
+check_app "unknown.example" "hello from app3" "unmatched host app3"
 
 exit 0

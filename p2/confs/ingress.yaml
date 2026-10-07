@@ -3,6 +3,7 @@ kind: Ingress
 metadata:
   name: part2
 spec:
+  ingressClassName: traefik
   defaultBackend:
     service:
       name: app3-service
