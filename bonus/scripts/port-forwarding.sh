@@ -10,7 +10,7 @@ if ! pgrep -f "kubectl port-forward service/gitlab-webservice-default.*8181:8181
 	echo 'Port forwarding GitLab 8181:8181'
 	(
 		while true; do
-			kubectl port-forward service/gitlab-webservice-default --address 0.0.0.0 -n gitlab 8181:8181
+			kubectl port-forward service/gitlab-webservice-default --address 0.0.0.0 -n gitlab 8181:8181 || true
 			sleep 2
 		done
 	) >/tmp/gitlab-port-forward.log 2>&1 &
@@ -22,7 +22,7 @@ if ! pgrep -f "kubectl port-forward service/argocd-server.*8080:443" >/dev/null 
 	echo 'Port forwarding Argo CD 8080:443'
 	(
 		while true; do
-			kubectl port-forward service/argocd-server --address 0.0.0.0 -n argocd 8080:443
+			kubectl port-forward service/argocd-server --address 0.0.0.0 -n argocd 8080:443 || true
 			sleep 2
 		done
 	) >/tmp/argocd-port-forward.log 2>&1 &

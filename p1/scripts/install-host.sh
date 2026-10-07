@@ -31,8 +31,15 @@ printf '%s\n' \
 
 apt-get update
 apt-get install -y vagrant virtualbox-7.2
-modprobe vboxdrv
 
 vagrant --version
 VBoxManage --version
+if ! modprobe vboxdrv; then
+	echo "Vagrant and VirtualBox are installed, but the VirtualBox kernel driver could not load." >&2
+	if command -v mokutil >/dev/null 2>&1 && mokutil --sb-state | grep -q 'SecureBoot enabled'; then
+		echo "Secure Boot is enabled. Sign the VirtualBox modules and enroll their signing certificate before running vagrant up." >&2
+		echo "Certificate enrollment must be confirmed at boot. See the Secure Boot note in README.md." >&2
+	fi
+	exit 1
+fi
 echo "Host prerequisites for Parts 1 and 2 are installed. Run vagrant as your regular user."

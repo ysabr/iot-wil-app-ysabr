@@ -15,7 +15,7 @@ kubectl wait --for=condition=Ready --timeout=180s -n argocd pod -l app.kubernete
 
 (
 	while true; do
-		kubectl port-forward service/argocd-server --address 0.0.0.0 -n argocd 8080:443
+		kubectl port-forward service/argocd-server --address 0.0.0.0 -n argocd 8080:443 || true
 		sleep 2
 	done
 ) >/tmp/argocd-port-forward.log 2>&1 &
