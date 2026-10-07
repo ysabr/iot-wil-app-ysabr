@@ -52,8 +52,22 @@ helm upgrade --install gitlab gitlab/gitlab \
 	--values confs/gitlab.yaml \
 	-n gitlab
 
-echo -e '\n\033[32mWaiting for Gitlab to be ready (5min)\033[0m'
-kubectl wait --timeout=300s --for=condition=Ready -n gitlab -l app=webservice pod
+echo -e '\n\033[32mWaiting for GitLab to be ready (up to 15min)\033[0m'
+# The chart creates the webservice deployment asynchronously.
+deadline=$((SECONDS + 300))
+until kubectl get deployment/gitlab-webservice-default -n gitlab >/dev/null 2>&1; do
+	if (( SECONDS >= deadline )); then
+		echo "GitLab webservice deployment was not created within 300 seconds" >&2
+		kubectl get pods -n gitlab >&2 || true
+		exit 1
+	fi
+	sleep 2
+done
+if ! kubectl rollout status deployment/gitlab-webservice-default -n gitlab --timeout=900s; then
+	echo "GitLab did not become ready. It needs about 6 GB of free memory." >&2
+	kubectl get pods -n gitlab >&2 || true
+	exit 1
+fi
 
 bash scripts/port-forwarding.sh
 

@@ -13,7 +13,7 @@ apt-get install -y ca-certificates curl iproute2
 
 echo -e "\033[1;32m--- Installing K3s ---\033[0m"
 
-PRIVATE_IFACE=$(ip -o -4 addr show | awk -v ip="$NODE_IP" '$4 ~ "^" ip "/" { print $2; exit }')
+PRIVATE_IFACE=$(ip -o -4 addr show | awk -v ip="$NODE_IP" '{ split($4, address, "/"); if (address[1] == ip) { print $2; exit } }')
 
 if [ -z "$PRIVATE_IFACE" ]; then
 	echo "Could not find the private interface for $NODE_IP"

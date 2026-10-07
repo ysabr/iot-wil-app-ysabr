@@ -10,7 +10,6 @@ apt-get update -y
 apt-get install -y git uuid-runtime
 
 TOKEN=$(uuidgen)
-PWD=$(pwd)
 
 get_pod() {
 	kubectl get pod -n gitlab -l app=webservice -o jsonpath='{.items[0].metadata.name}'
@@ -25,7 +24,7 @@ EOF
 sleep 10
 
 if ! curl -fsS -H "Content-Type: application/json" \
-	http://localhost:8181/api/v4/projects?private_token=$TOKEN \
+	"http://localhost:8181/api/v4/projects?private_token=$TOKEN" \
 	-d '{ "name": "service", "visibility": "public" }'; then
 	echo "Project may already exist, continuing."
 fi
@@ -43,7 +42,5 @@ git config user.email "admin@gitlab.local"
 git config user.name "Admin"
 
 git add wil-app.yml
-git commit -m "Automatic init commit - made by repo.sh script" || true
+git commit -m "Deploy playground v1" || true
 git push "http://root:$TOKEN@localhost:8181/root/service.git"
-
-cd "$PWD"

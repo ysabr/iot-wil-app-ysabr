@@ -6,6 +6,8 @@ if [ "$(id -u)" -ne 0 ]; then
 	exec sudo -E bash "$0" "$@"
 fi
 
+cd "$(dirname -- "${BASH_SOURCE[0]}")"
+
 run() {
 	echo -e "\033[1;34m--- INSTALLATION ---\033[0m"
 	bash scripts/installation.sh
